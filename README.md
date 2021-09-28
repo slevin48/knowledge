@@ -1,5 +1,7 @@
 # Knowledge
-📚 Represent personal Knowledge as a graph, with nodes for articles and edges for connections between them. The connections are computed based on the number of tags in commun. This should serve as a way to discover visually new content, and browse through existing content..
+📚 Represent personal Knowledge as a graph, with nodes for tags and edges for connections between them. The connections are computed based on the number of articles in commun for one tag. This should serve as a way to discover visually new content, and browse through existing content.
+
+![graph_top10](img/graph_top10.png)
 
 ## Processing Workflow
 ![processing_flow](img/processing_flow.png)
@@ -45,6 +47,17 @@ In this example, the nodes are the tags:
 3. Third drawing the graph from the adjacency matrix
 
 <img src="img/adjacency_matrix_to_graph.png">
+
+## Previous implementations
+
+- Article graph
+
+![article_graph](img/article_graph.png)
+
+- Tag graph
+
+![tag_graph](img/tag_graph.png)
+
 
 ## References:
 
