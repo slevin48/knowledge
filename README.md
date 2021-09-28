@@ -1,7 +1,7 @@
 # Knowledge
 📚 Represent personal Knowledge as a graph, with nodes for tags and edges for connections between them. The connections are computed based on the number of articles in commun for one tag. This should serve as a way to discover visually new content, and browse through existing content.
 
-![graph_top10](img/graph_top10.png)
+![graph_top10](img/graph_top10.gif)
 
 ## Processing Workflow
 ![processing_flow](img/processing_flow.png)
