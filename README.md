@@ -50,6 +50,8 @@ In this example, the nodes are the tags:
 
 ## Knowledge visualizer
 
+Branch: https://github.com/slevin48/knowledge/tree/graph
+
 Implemented with streamlit ([streamlit_app.py](streamlit_app.py)) + flask server running in the background ([force.py](force.py))
 
 https://user-images.githubusercontent.com/12418115/144766627-e7946fef-1be5-47a8-b6e1-d826734f26f0.mp4
