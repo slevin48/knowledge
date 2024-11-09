@@ -3,6 +3,12 @@
 
 ![graph_top10](img/graph_top10.gif)
 
+## Knowledge Base App
+
+Library of Diigo bookmarks
+
+![](img/knowledgebase.png)
+
 ## Processing Workflow
 ![processing_flow](img/processing_flow.png)
 
