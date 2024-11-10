@@ -3,12 +3,23 @@ from urllib.parse import unquote
 import pandas as pd
 from datetime import datetime
 from urllib.parse import quote
+import base64, io
 
 st.set_page_config(page_title="Knowledge Base", page_icon="📚")
 
 # Initialize page in session state if it doesn't exist
 if 'page' not in st.session_state:
     st.session_state.page = 1
+
+
+base64_txt = st.secrets["base64_txt"]
+
+# Load data from base64
+def load_data(base64_txt):
+    decoded_txt = base64.b64decode(base64_txt).decode('utf-8')
+    df = pd.read_csv(io.StringIO(decoded_txt))
+    return df
+
 
 # Function to create clickable tags
 def display_tags(tags_str):
@@ -56,7 +67,7 @@ selected_tag = unquote(st.query_params.get('tag', ''))
 view_mode = st.query_params.get('view', '')
 
 # Read and prepare data
-df = pd.read_csv('diigo/diigo_csv_2024_11_09_lite.csv')
+df = load_data(base64_txt)
 df.tags = df.tags.fillna('')
 
 # Filter data if a tag is selected
