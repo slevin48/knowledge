@@ -3,12 +3,22 @@ from urllib.parse import unquote
 import pandas as pd
 from datetime import datetime
 from urllib.parse import quote
+from st_supabase_connection import SupabaseConnection
 
 st.set_page_config(page_title="Knowledge Base", page_icon="📚")
+
+# Initialize Supabase connection
+supabase = st.connection("supabase", type=SupabaseConnection)
 
 # Initialize page in session state if it doesn't exist
 if 'page' not in st.session_state:
     st.session_state.page = 1
+
+def load_data():
+    # df = pd.read_csv('diigo/diigo_csv_2024_11_09_lite.csv')
+    df = supabase.table('articles').select("*").execute()
+    df = pd.DataFrame(df.data).set_index('id')
+    return df
 
 # Function to create clickable tags
 def display_tags(tags_str):
@@ -56,15 +66,16 @@ selected_tag = unquote(st.query_params.get('tag', ''))
 view_mode = st.query_params.get('view', '')
 
 # Read and prepare data
-df = pd.read_csv('diigo/diigo_csv_2024_11_09_lite.csv')
+df = load_data()
 df.tags = df.tags.fillna('')
+
+st.sidebar.title("📚 Knowledge Base")
 
 # Filter data if a tag is selected
 if selected_tag:
     df = df[df.tags.str.contains(selected_tag, case=False, na=False)]
-    st.title(f"📚 Knowledge Base - {selected_tag}")
-else:
-    st.title("📚 Knowledge Base")
+    st.subheader(f"🏷️ Tag: {selected_tag}")
+    
 
 # Handle special views (all_tags or top_300)
 if view_mode in ['all_tags', 'top_300']:
@@ -101,7 +112,7 @@ with col2:
             st.rerun()
 with col3:
     # Center-align the page selector and update session state when changed
-    new_page = st.number_input("", min_value=1, max_value=total_pages, 
+    new_page = st.number_input("Page number", min_value=1, max_value=total_pages, 
                               value=st.session_state.page,
                               key="page_selector",
                               label_visibility="collapsed")
@@ -146,7 +157,8 @@ for idx in range(start_idx, end_idx):
     with col1:
         display_tags(row['tags'])
     with col2:
-        created_date = datetime.strptime(row['created_at'], '%Y-%m-%d %H:%M:%S')
+        # Update datetime parsing to handle ISO format
+        created_date = datetime.fromisoformat(row['created_at'].replace('Z', '+00:00'))
         st.write(created_date.strftime('%B %d, %Y'))
     
     # Add a separator between entries
