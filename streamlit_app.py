@@ -6,22 +6,33 @@ from urllib.parse import quote
 from st_supabase_connection import SupabaseConnection
 
 st.set_page_config(page_title="Knowledge Base", page_icon="📚")
-st.logo("img/knowledge_logo_horizontal_3_colors.png", size="large")
+st.logo("img/knowledge_logo_horizontal_3_colors.png", size="large", link="https://knowledge-supabase.streamlit.app/")
 
 # Initialize Supabase connection
 supabase = st.connection("supabase", type=SupabaseConnection)
+
+# Initialize user in session state if it doesn't exist
+if 'user' not in st.session_state:
+    st.session_state.user = None  # Initialize with None first
+
+# Then try to get session from Supabase
+if st.session_state.user is None:
+    try:
+        session = supabase.auth.get_session()
+        if session:
+            st.session_state.user = session.user
+    except Exception as e:
+        st.write(f"Error getting session: {e}")
+        st.session_state.user = None
 
 # Initialize page in session state if it doesn't exist
 if 'page' not in st.session_state:
     st.session_state.page = 1
 
-if 'user_id' not in st.session_state:
-    st.session_state.user_id = None
-
 @st.cache_data
 def load_data():
     # df = pd.read_csv('diigo/diigo_csv_2024_11_09_lite.csv')
-    df = supabase.table('articles').select("*").eq('user_id', st.session_state.user_id).execute()
+    df = supabase.table('articles').select("*").eq('user_id', st.session_state.user.id).execute()
     df = pd.DataFrame(df.data).set_index('id')
     return df
 
@@ -33,7 +44,7 @@ def display_tags(tags_str):
         tag = tag.strip()
         if tag:  # Only display non-empty tags
             encoded_tag = quote(tag)
-            tag_links.append(f"[`{tag}`](/?tag={encoded_tag})")
+            tag_links.append(f'<a href="/?tag={encoded_tag}" target="_self" title="Click to filter by {tag}">`{tag}`</a>')
     
     # Join all tags with separator and display in a single line
     st.markdown(" | ".join(tag_links), unsafe_allow_html=True)
@@ -72,7 +83,7 @@ view_mode = st.query_params.get('view', '')
 
 
 # User Authentication Section
-if st.session_state.user_id is None:
+if st.session_state.user is None:
     # st.subheader('Log in')
     with st.form("Sign in"):
         st.write("**Log in**")
@@ -89,8 +100,7 @@ if st.session_state.user_id is None:
         if st.form_submit_button('Login📚'):
             try:
                 response = supabase.auth.sign_in_with_password({"email": email, "password": password}) 
-                st.session_state.user_id = response.user.id
-                st.session_state.user_email = response.user.email
+                st.session_state.user = response.user
                 st.rerun()
             except Exception as e:
                 st.error(str(e), icon="❌")
@@ -98,6 +108,13 @@ if st.session_state.user_id is None:
    
 
 else:
+    with st.sidebar:
+        st.write(f"Howdy, {st.session_state.user.email}!")
+        if st.button("Logout"):
+            supabase.auth.sign_out()
+            st.session_state.user = None
+            st.rerun()
+
     # Read and prepare data
     df = load_data()
     df.tags = df.tags.fillna('')
@@ -166,18 +183,22 @@ else:
         # Get tag counts
         tag_counts = get_tag_counts(df)
         
-        # Display top tags with counts
+        # Display top tags with counts in sidebar
         for tag, count in tag_counts.head(10).items():
             encoded_tag = quote(tag)
-            st.markdown(f"[{tag}](/?tag={encoded_tag}) ({count})")
+            clean_tag = tag.replace('"', '&quot;')  # Replace double quotes with HTML entity
+            st.markdown(f'<a href="/?tag={encoded_tag}" target="_self" title="{count} articles tagged with &quot;{clean_tag}&quot;">{clean_tag}</a> ({count})', 
+                       unsafe_allow_html=True)
         
         # Add links to view all tags
         st.markdown("---")
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("[All tags](/?view=all_tags)")
+            st.markdown('<a href="/?view=all_tags" target="_self" title="View complete list of tags">All tags</a>', 
+                       unsafe_allow_html=True)
         with col2:
-            st.markdown("[Top 300](/?view=top_300)")
+            st.markdown('<a href="/?view=top_300" target="_self" title="View 300 most used tags">Top 300</a>', 
+                       unsafe_allow_html=True)
         
         if st.toggle("Debug mode", value=False):
             st.write(df)
