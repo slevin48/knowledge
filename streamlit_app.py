@@ -15,6 +15,7 @@ if 'page' not in st.session_state:
 base64_txt = st.secrets["base64_txt"]
 
 # Load data from base64
+@st.cache_data
 def load_data(base64_txt):
     decoded_txt = base64.b64decode(base64_txt).decode('utf-8')
     df = pd.read_csv(io.StringIO(decoded_txt))
@@ -112,7 +113,7 @@ with col2:
             st.rerun()
 with col3:
     # Center-align the page selector and update session state when changed
-    new_page = st.number_input("", min_value=1, max_value=total_pages, 
+    new_page = st.number_input("Page number", min_value=1, max_value=total_pages, 
                               value=st.session_state.page,
                               key="page_selector",
                               label_visibility="collapsed")
