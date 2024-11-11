@@ -6,3 +6,6 @@ pillow
 matplotlib
 ipykernel
 streamlit
+st-supabase-connection
+supabase
+python-dotenv
