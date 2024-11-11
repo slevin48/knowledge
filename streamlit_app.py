@@ -6,7 +6,7 @@ from urllib.parse import quote
 from st_supabase_connection import SupabaseConnection
 
 st.set_page_config(page_title="Knowledge Base", page_icon="📚")
-st.logo("img/knowledge_logo_horizontal_3_colors.png", size="large", link="https://knowledge-supabase.streamlit.app/")
+st.logo("img/knowledge_logo_horizontal_3_colors.png", size="large", link="https://knowledge-supabase.streamlit.app/", )
 
 # Initialize Supabase connection
 supabase = st.connection("supabase", type=SupabaseConnection)
@@ -44,7 +44,8 @@ def display_tags(tags_str):
         tag = tag.strip()
         if tag:  # Only display non-empty tags
             encoded_tag = quote(tag)
-            tag_links.append(f'<a href="/?tag={encoded_tag}" target="_self" title="Click to filter by {tag}">`{tag}`</a>')
+            clean_tag = tag.replace('"', '')  # Remove quotes instead of replacing with HTML entity
+            tag_links.append(f'<a href="/?tag={encoded_tag}" target="_self" title="Click to filter by {clean_tag}">`{tag}`</a>')
     
     # Join all tags with separator and display in a single line
     st.markdown(" | ".join(tag_links), unsafe_allow_html=True)
@@ -186,8 +187,8 @@ else:
         # Display top tags with counts in sidebar
         for tag, count in tag_counts.head(10).items():
             encoded_tag = quote(tag)
-            clean_tag = tag.replace('"', '&quot;')  # Replace double quotes with HTML entity
-            st.markdown(f'<a href="/?tag={encoded_tag}" target="_self" title="{count} articles tagged with &quot;{clean_tag}&quot;">{clean_tag}</a> ({count})', 
+            clean_tag = tag.replace('"', '')  # Remove quotes instead of replacing with HTML entity
+            st.markdown(f'<a href="/?tag={encoded_tag}" target="_self" title="{count} articles tagged with {clean_tag}">{clean_tag}</a> ({count})', 
                        unsafe_allow_html=True)
         
         # Add links to view all tags
