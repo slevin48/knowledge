@@ -6,6 +6,7 @@ from urllib.parse import quote
 from st_supabase_connection import SupabaseConnection
 
 st.set_page_config(page_title="Knowledge Base", page_icon="📚")
+st.logo("img/knowledge_logo_horizontal_3_colors.png", size="large")
 
 # Initialize Supabase connection
 supabase = st.connection("supabase", type=SupabaseConnection)
@@ -70,7 +71,7 @@ view_mode = st.query_params.get('view', '')
 df = load_data()
 df.tags = df.tags.fillna('')
 
-st.sidebar.title("📚 Knowledge Base")
+# st.sidebar.title("📚 Knowledge Base")
 
 # Filter data if a tag is selected
 if selected_tag:
