@@ -14,6 +14,7 @@ supabase = st.connection("supabase", type=SupabaseConnection)
 if 'page' not in st.session_state:
     st.session_state.page = 1
 
+@st.cache_data
 def load_data():
     # df = pd.read_csv('diigo/diigo_csv_2024_11_09_lite.csv')
     df = supabase.table('articles').select("*").execute()
